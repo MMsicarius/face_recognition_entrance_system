@@ -2,7 +2,7 @@ import cv2
 import os
 import face_recognition
 import numpy as np
-import glob
+import pandas as pd
 
 
 class SimpleFacerec:
@@ -12,17 +12,18 @@ class SimpleFacerec:
 
         # Resize frame for a faster speed
         self.frame_resize_ratio = 0.25
+        self.credentials = pd.read_csv("access_credentials.csv")
+        self.access_log = pd.read_csv("access_log.csv")
 
-    def load_encoding_images(self, face_image_path):
-        """
-        Load encoding images from path
-        :param face_image_path:
-        :return:
-        """
-        # Load Images
-        face_image_path = glob.glob(os.path.join(face_image_path, "*.*"))
+    def load_encoding_images(self):
+        face_image_path = []
 
-        print("{} encoding images found.".format(len(face_image_path)))
+        for i in self.credentials["Image"]:
+            face_image_path.append(("faces\\" + i))
+        # debug
+        print(face_image_path)
+
+        print("{} faces found.".format(len(face_image_path)))
 
         # Store image encoding and names
         for i in face_image_path:
@@ -38,7 +39,7 @@ class SimpleFacerec:
             # Store file name and file encoding
             self.faces.append(image_encoding_endpoint)
             self.names.append(filename)
-        print("Encoding images loaded")
+        print("Encoding faces loaded")
 
     def detect_known_faces(self, frame):
         small_frame = cv2.resize(frame, (0, 0), fx=self.frame_resize_ratio, fy=self.frame_resize_ratio)
